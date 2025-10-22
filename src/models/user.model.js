@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: [true, "Password is required"],
         },
+        phone: {
+            type: String,
+            required: true,  
+            match: [/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number']
+        },
         refreshToken: {
             type: String
         },

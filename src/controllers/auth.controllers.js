@@ -20,7 +20,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-    const {email,username,password} = req.body;
+    const {email,username,password,phone} = req.body;
 
     const existedUser = await User.findOne({$or: [{email},{username}]})
 
@@ -28,11 +28,11 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(401,"User with given email or username already exists.");
     }
 
-    const user = await User.create({email,username,password});
+    const user = await User.create({email,username,password,phone});
 
     await user.save({validateBeforeSave: false});
 
-    const createdUser = await User.findById(user._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
+    const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
     if(!createdUser){
         throw new ApiError(500,"Something went wrong. Please try again.")
@@ -67,7 +67,7 @@ const login = asyncHandler(async (req,res) =>{
 
     const {accessToken,refreshToken} =  await generateAccessAndRefreshTokens(user._id);
 
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const options = {
         httpOnly: true,
