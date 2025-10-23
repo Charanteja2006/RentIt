@@ -22,10 +22,12 @@ app.use(cors({
 //import the routes
 import healthcheckRoutes from './routes/healthcheck.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import productRoutes from './routes/product.routes.js';
 
 //use the routes
 app.use('/api/v1/healthcheck', healthcheckRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/products', productRoutes);
 
 
 export default app;
