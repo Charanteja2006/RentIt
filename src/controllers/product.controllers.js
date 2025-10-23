@@ -40,4 +40,33 @@ const getAllProducts = asyncHandler(async (req, res) => {
         ));
 });
 
-export {createProduct, getAllProducts};
+const getUserProducts = asyncHandler(async (req, res) => {
+    const user = req.user;
+    if(!user){
+        throw new ApiError(401,"Unauthorized access.");
+    }
+
+    const products = await Product.find({owner: user._id}).populate('owner', '-password -refreshToken');
+
+    if(!products){
+        throw new ApiError(500,"Something went wrong. Please try again.")
+    }
+
+    if(products.length === 0){
+        return res
+            .status(200)
+            .json(new ApiResponse(200,{
+                products: []},
+                "No products found for this user."
+        ));
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200,{
+            products},
+            "User's products fetched successfully."
+        ));
+})
+
+export {createProduct, getAllProducts, getUserProducts};
