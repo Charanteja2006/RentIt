@@ -69,7 +69,7 @@ const getUserProducts = asyncHandler(async (req, res) => {
         ));
 })
 
-export const updateProduct = async (req, res) => {
+const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user?._id;
@@ -98,7 +98,7 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-export const deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user?._id; 
