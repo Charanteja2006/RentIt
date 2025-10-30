@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            match: [
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                "Please enter a valid email address",
+                ],
         },
         fullName: {
             type: String,
@@ -37,6 +41,7 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
             required: [true, "Password is required"],
+            minlength: [6, "Password must be at least 6 characters long"],
         },
         phone: {
             type: String,
