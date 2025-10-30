@@ -1,14 +1,12 @@
 import {Router} from 'express';
 import {registerUser,login,logoutUser,getCurrentUser,changeCurrentPassword,refreshAccessToken} from '../controllers/auth.controllers.js';
-import {validate} from '../middlewares/validator.middleware.js';
-import {userRegisterValidator,userLoginValidator} from '../validators/index.js';
 import {verifyJWT} from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
 //Public routes
-router.route('/register').post(userRegisterValidator(),validate,registerUser);
-router.route('/login').post(userLoginValidator(),validate,login);
+router.route('/register').post(registerUser);
+router.route('/login').post(login);
 router.route('/refresh-token').post(refreshAccessToken);
 
 //Protected routes

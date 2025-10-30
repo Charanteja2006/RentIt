@@ -2,6 +2,12 @@ import {validationResult} from 'express-validator';
 import {ApiError} from '../utils/api-error.js';
 
 
+export const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+
 export const validate = (req,res,next) =>{
     const errors = validationResult(req)
     if(errors.isEmpty()){

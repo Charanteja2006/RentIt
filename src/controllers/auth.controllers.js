@@ -2,6 +2,7 @@ import {User} from '../models/user.model.js';
 import {ApiResponse} from '../utils/api-response.js';
 import {ApiError} from '../utils/api-error.js';
 import {asyncHandler} from '../utils/async-handler.js';
+import {isValidEmail} from '../middlewares/validator.middleware.js';
 import jwt from 'jsonwebtoken';
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -42,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
         .status(201)
         .json(new ApiResponse(201,{
             user: createdUser},
-            "User registered successfully. Please check your email to verify your account."
+            "User registered successfully."
     ));
 })
 
@@ -51,6 +52,15 @@ const login = asyncHandler(async (req,res) =>{
 
     if(!email){
         throw new ApiError(400,"Email is required to login.");
+    }
+
+    if (!isValidEmail(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    
+    if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
     const user = await User.findOne({email});
