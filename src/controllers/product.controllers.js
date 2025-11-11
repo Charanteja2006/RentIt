@@ -166,5 +166,31 @@ const getProduct = asyncHandler(async (req,res) => {
   }
 });
 
+const toggleProduct = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?._id;
+    const product = await Product.findById(id);
 
-export {createProduct, getAllProducts, getUserProducts, updateProduct, deleteProduct, getProduct};
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      [{ $set: { isAvailable: { $not: "$isAvailable" } } }],
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Product availability toggled successfully",
+      product: updatedProduct
+    });
+
+  } catch (error) {
+    console.error("Error toggling product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+export {createProduct, getAllProducts, getUserProducts, updateProduct, deleteProduct, getProduct,toggleProduct};
