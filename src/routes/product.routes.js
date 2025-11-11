@@ -11,7 +11,6 @@ router.route('/all').get(getAllProducts);
 router.route('/get/:id').get(getProduct);
 
 
-
 //Protected routes
 router.route('/create').post(verifyJWT, upload.single("image"), createProduct);
 router.route('/my-products').get(verifyJWT,getUserProducts);
