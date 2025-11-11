@@ -18,6 +18,10 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  isAvailable: {
+    type: Boolean,
+    default: true
+  },
   description: {
     type: String,
     required: true,

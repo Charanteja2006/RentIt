@@ -7,7 +7,7 @@ import {asyncHandler} from '../utils/async-handler.js';
 
 const createProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, category, price, description, ownerName } = req.body;
+    const { name, category, price, description} = req.body;
     const file = req.file; 
 
     if (!name || !category || !price || !description || !file) {
@@ -149,7 +149,7 @@ const getProduct = asyncHandler(async (req,res) => {
   try {
     console.log(req.params)
     const { id } = req.params;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).populate('owner', '-password -refreshToken');
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -157,7 +157,7 @@ const getProduct = asyncHandler(async (req,res) => {
       new ApiResponse(
         200,
         product,
-        "I can send product! xD"
+        "Product fetched successfully."
       )
     );
   } catch (error) {
