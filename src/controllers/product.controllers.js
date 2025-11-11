@@ -1,28 +1,52 @@
 import {Product} from '../models/product.model.js';
+import cloudinary from '../utils/cloudinary.js';
 import {ApiResponse} from '../utils/api-response.js';
 import {ApiError} from '../utils/api-error.js';
 import {asyncHandler} from '../utils/async-handler.js';
 
 
 const createProduct = asyncHandler(async (req, res) => {
-    const {name, category, price, description} = req.body;
-    const user = req.user;
+  try {
+    const { name, category, price, description, ownerName } = req.body;
+    const file = req.file; 
 
-    const product = await Product.create({name, category, price, description,owner: user._id});
-    await product.save({validateBeforeSave: false});
-
-    const CreatedProduct = await Product.findById(product._id).populate('owner', '-password -refreshToken');
-    if(!CreatedProduct){
-        throw new ApiError(500,"Something went wrong. Please try again.")
+    if (!name || !category || !price || !description || !file) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    return res
-        .status(201)
-        .json(new ApiResponse(201,{
-            product: CreatedProduct},
-            "Product created successfully."
-        ));
+    // ✅ Upload to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload_stream(
+      { folder: "rentit-products" },
+      async (error, result) => {
+        if (error) {
+          console.error("Cloudinary error:", error);
+          return res.status(500).json({ message: "Image upload failed" });
+        }
 
+        // ✅ Create product in MongoDB
+        const newProduct = new Product({
+          name,
+          category,
+          price,
+          description,
+          image: result.secure_url,
+          imagePublicId: result.public_id,
+          owner: req.user._id, // coming from auth middleware
+        });
+
+        await newProduct.save();
+        res.status(201).json({ message: "Product created", product: newProduct });
+      }
+    );
+
+    // stream the buffer
+    if (file && file.buffer) {
+      uploadResult.end(file.buffer);
+    }
+  } catch (error) {
+    console.error("Error creating product:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 })
 
 const getAllProducts = asyncHandler(async (req, res) => {
@@ -121,4 +145,26 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-export {createProduct, getAllProducts, getUserProducts, updateProduct, deleteProduct};
+const getProduct = asyncHandler(async (req,res) => {
+  try {
+    console.log(req.params)
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        product,
+        "I can send product! xD"
+      )
+    );
+  } catch (error) {
+    console.error("Error Finding product:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+export {createProduct, getAllProducts, getUserProducts, updateProduct, deleteProduct, getProduct};
